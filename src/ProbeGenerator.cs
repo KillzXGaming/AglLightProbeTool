@@ -194,10 +194,12 @@ namespace AglLightProbeTool
 
             public static Settings Load(string folder)
             {
-                if (!File.Exists(Path.Combine(folder, "settings.json")))
-                    File.WriteAllText(Path.Combine(folder, "settings.json"), JsonConvert.SerializeObject(new Settings(), Formatting.Indented));
+                string path = Path.Combine(folder, "settings.json");
 
-                return JsonConvert.DeserializeObject<Settings>(File.ReadAllText("settings.json"));
+                if (!File.Exists(path))
+                    File.WriteAllText(path, JsonConvert.SerializeObject(new Settings(), Formatting.Indented));
+
+                return JsonConvert.DeserializeObject<Settings>(File.ReadAllText(path));
             }
         }
     }

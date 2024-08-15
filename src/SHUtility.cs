@@ -41,6 +41,8 @@ namespace AglLightProbeTool
         {
             Vector3[] coeffVec = new Vector3[9];
 
+            //Note we do not use any bias as that is computed automatically before passed to glsl
+
             //Constant color term
             coeffVec[0] += color; // L00 
 
@@ -53,7 +55,7 @@ namespace AglLightProbeTool
             coeffVec[6] += color * (dir.Z * dir.X); //L20
 
             coeffVec[7] += color * (dir.Z * dir.Z); //L21
-            coeffVec[8] += color * ((dir.X * dir.X - dir.Y * dir.Y)); //L22
+            coeffVec[6] += color * ((dir.X * dir.X - dir.Y * dir.Y)); //L22
 
             sh_data = CoeffToBuffer(coeffVec);
         }
