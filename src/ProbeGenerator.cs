@@ -56,13 +56,28 @@ namespace AglLightProbeTool
             var num = CalculateIndexCount(min, max, step);
 
             ushort[] index_buffer = new ushort[num]; //number of indices to map in the grid to probes
+
+            ushort sh_idx = 0;
             for (int i = 0; i < index_buffer.Length; i++)
-                index_buffer[i] = 0;
+            {
+                if (sh_idx >= 8)
+                    sh_idx = 0;
+
+                index_buffer[i] = sh_idx++;
+            }
 
             //Would index these per probe to figure out what to do
             List<float> color_buffer = new List<float>();
             //Keep things simple, use a constant color for now.
-            color_buffer.AddRange(SHUtility.SetConstantColor(settings.Color));
+            color_buffer.AddRange(SHUtility.SetConstantColor(new Vector3(1, 0, 0)));
+            color_buffer.AddRange(SHUtility.SetConstantColor(new Vector3(0, 1, 0)));
+            color_buffer.AddRange(SHUtility.SetConstantColor(new Vector3(0, 0, 1)));
+            color_buffer.AddRange(SHUtility.SetConstantColor(new Vector3(1, 1, 0)));
+
+            color_buffer.AddRange(SHUtility.SetConstantColor(new Vector3(0, 1, 1)));
+            color_buffer.AddRange(SHUtility.SetConstantColor(new Vector3(0.5f, 1, .5f)));
+            color_buffer.AddRange(SHUtility.SetConstantColor(new Vector3(0, .5f, 1)));
+            color_buffer.AddRange(SHUtility.SetConstantColor(new Vector3(1, .5f, .5f)));
 
             return SetupProbeParams(min, max, step, index_buffer, color_buffer.ToArray(), 0);
         }

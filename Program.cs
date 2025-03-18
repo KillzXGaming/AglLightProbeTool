@@ -1,5 +1,6 @@
 ﻿using BfresLibrary;
 using AglLightProbeTool;
+using System.IO;
 
 namespace AglLightProbeTool
 {
@@ -19,7 +20,14 @@ namespace AglLightProbeTool
                 if (arg.EndsWith("bglpbd.szs") || arg.EndsWith("bglpbd"))
                 {
                     //do nothing atm
-                    Console.WriteLine($"Drag/drop a course_model.szs to use!");
+                    // Console.WriteLine($"Drag/drop a course_model.szs to use!");
+                    ProbeTool tool = new ProbeTool();
+                    if (arg.EndsWith(".szs"))
+                        tool.Load(new MemoryStream(YAZ0.Decompress(arg)));
+                    else
+                        tool.Load(arg);
+                    tool.DumpImages();
+                    return;
                 }
                 else if (arg.EndsWith(".szs"))
                     CreateProbesFromCourseModel(arg);

@@ -60,6 +60,28 @@ namespace AglLightProbeTool
             sh_data = CoeffToBuffer(coeffVec);
         }
 
+        public static void UpdateCoeffBias(ref float[] sh_data, Vector3 color, Vector3 dir)
+        {
+            Vector3[] coeffVec = new Vector3[9];
+
+            // Band 0
+            coeffVec[0] += 0.282095f * color; // L00 
+
+            // Band 1
+            coeffVec[1] += color * (0.488603f * dir.Y); //L1-1
+            coeffVec[2] += color * (0.488603f * dir.Z); //L10
+            coeffVec[3] += color * (0.488603f * dir.X); //L11
+
+            // Band 2
+            coeffVec[4] += color * (1.092548F * dir.X * dir.Y);
+            coeffVec[5] += color * (-1.092548F * dir.Y * dir.Z);
+            coeffVec[6] += color * (0.315392F * (3.0f * dir.Z * dir.Z - 1.0f));
+            coeffVec[7] += color * (-1.092548F * dir.X * dir.Z);
+            coeffVec[8] += color * (0.546274F * (dir.X * dir.X - dir.Y * dir.Y));
+
+            sh_data = CoeffToBuffer(coeffVec);
+        }
+
         //Packs coeff vec3[9] data into a float[27]
         static float[] CoeffToBuffer(Vector3[] coeffVec)
         {
