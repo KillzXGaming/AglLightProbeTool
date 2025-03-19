@@ -90,6 +90,12 @@ namespace AglLightProbeTool
                             int unityBufferIndex = CalculateIndexUnity((int)(stride.X - x), y, z) * 27;
                             var shData = box.Buffer.Skip(unityBufferIndex).Take(27).ToArray();
 
+                            if (shData.All(x => x == 0))
+                            {
+                                index_buffer[index] = ProbeTool.EMPTY_PROBE_IDX;
+                                continue;
+                            }
+
                             // Get index from the current buffer
                             if (!uniqueEntries.TryGetValue(shData, out int dataIndex))
                             {
