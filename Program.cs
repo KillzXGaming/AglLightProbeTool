@@ -15,6 +15,7 @@ namespace AglLightProbeTool
                 return;
             }
 
+
             foreach (var arg in args)
             {
                 if (arg.EndsWith("bglpbd.szs") || arg.EndsWith("bglpbd"))
@@ -38,6 +39,17 @@ namespace AglLightProbeTool
                         CreateProbesFromCourseModel(path);
                 }
             }
+        }
+
+        static void UnityProbeTest()
+        {
+            UnityProbeGenerator gen = new UnityProbeGenerator(false);
+            gen.Generate("lightProbes.txt");
+            gen.Save("test.aamp");
+
+            ProbeTool tool2 = new ProbeTool();
+            tool2.Load("test.aamp");
+            tool2.DumpImages();
         }
 
         static void CreateProbesFromCourseModel(string path)
