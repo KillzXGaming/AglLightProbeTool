@@ -43,12 +43,18 @@ namespace AglLightProbeTool
 
         static void UnityProbeTest()
         {
-            UnityProbeGenerator gen = new UnityProbeGenerator(false);
+            string folder = "UnityGen";
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            string savePath = Path.Combine(folder, "course_bglpbd.szs");
+
+            UnityProbeGenerator gen = new UnityProbeGenerator(true);
             gen.Generate("lightProbes.txt");
-            gen.Save("test.aamp");
+            gen.SaveCompressed(savePath);
 
             ProbeTool tool2 = new ProbeTool();
-            tool2.Load("test.aamp");
+            tool2.Load(new MemoryStream(YAZ0.Decompress(savePath)));
             tool2.DumpImages();
         }
 
