@@ -52,6 +52,10 @@ namespace AglLightProbeTool
 
         public ParamList SetupProbeBox(UnityProbeBox box, Settings settings)
         {
+            // Padding
+            box.Min = box.Min - box.Step * 0.5f;
+            box.Max = box.Max + box.Step * 0.5f;
+
             //Total number based on the grid size and step amount
             var num = CalculateIndexCount(box.Min, box.Max, box.Step);
 
@@ -62,6 +66,7 @@ namespace AglLightProbeTool
             stride.X = MathF.Ceiling(stride.X);
             stride.Y = MathF.Ceiling(stride.Y);
             stride.Z = MathF.Ceiling(stride.Z);
+
 
             int CalculateIndex(int x, int y, int z) {
                 return (int)(stride.X * stride.Z * y + stride.X * z + x);
@@ -74,8 +79,6 @@ namespace AglLightProbeTool
             List<float> color_buffer = new List<float>();
             Dictionary<float[], int> uniqueEntries = new Dictionary<float[], int>(new FloatArrayComparer());
 
-            var NumColor = box.Buffer.Length / 27;
-
             for (int y = 0; y < stride.Y; y++) {
                 for (int z = 0; z < stride.Z; z++) {
                     for (int x = 0; x < stride.X; x++) {
@@ -84,7 +87,7 @@ namespace AglLightProbeTool
                             int index = CalculateIndex(x, y, z) * 8 + i;
 
                             // Get unity buffer 
-                            int unityBufferIndex = CalculateIndexUnity(x, y, z) * 27;
+                            int unityBufferIndex = CalculateIndexUnity((int)(stride.X - x), y, z) * 27;
                             var shData = box.Buffer.Skip(unityBufferIndex).Take(27).ToArray();
 
                             // Get index from the current buffer
