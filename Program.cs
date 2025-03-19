@@ -18,6 +18,10 @@ namespace AglLightProbeTool
 
             foreach (var arg in args)
             {
+                if (arg.EndsWith(".txt"))
+                {
+                    UnityProbeTest(arg);
+                }
                 if (arg.EndsWith("bglpbd.szs") || arg.EndsWith("bglpbd"))
                 {
                     //do nothing atm
@@ -41,7 +45,7 @@ namespace AglLightProbeTool
             }
         }
 
-        static void UnityProbeTest()
+        static void UnityProbeTest(string path)
         {
             string folder = "UnityGen";
             if (!Directory.Exists(folder))
@@ -50,7 +54,7 @@ namespace AglLightProbeTool
             string savePath = Path.Combine(folder, "course_bglpbd.szs");
 
             UnityProbeGenerator gen = new UnityProbeGenerator(true);
-            gen.Generate("lightProbes.txt");
+            gen.Generate(path);
             gen.SaveCompressed(savePath);
 
             ProbeTool tool2 = new ProbeTool();
