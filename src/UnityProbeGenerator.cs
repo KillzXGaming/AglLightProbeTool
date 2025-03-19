@@ -82,6 +82,17 @@ namespace AglLightProbeTool
             for (int y = 0; y < stride.Y; y++) {
                 for (int z = 0; z < stride.Z; z++) {
                     for (int x = 0; x < stride.X; x++) {
+                        Vector3[] direction = new[]
+                        {   
+                            new Vector3(-1, -1, -1), // Bottom-left-back
+                            new Vector3(1, -1, -1),  // Bottom-right-back
+                            new Vector3(-1, -1, 1),  // Bottom-left-front
+                            new Vector3(1, -1, 1),   // Bottom-right-front
+                            new Vector3(-1, 1, -1),  // Top-left-back
+                            new Vector3(1, 1, -1),   // Top-right-back
+                            new Vector3(-1, 1, 1),   // Top-left-front
+                            new Vector3(1, 1, 1)     // Top-right-front
+                        };
                         for (int i = 0; i < 8; i++) {
                             // MK8 probe index. This is where it expects a probe to be in the grid
                             int index = CalculateIndex(x, y, z) * 8 + i;
@@ -90,10 +101,20 @@ namespace AglLightProbeTool
                             int unityBufferIndex = CalculateIndexUnity((int)(stride.X - x), y, z) * 27;
                             var shData = box.Buffer.Skip(unityBufferIndex).Take(27).ToArray();
 
-                            if (shData.All(x => x == 0))
+  
+                            if (shData.All(x => x == 0) || shData.Length != 27)
                             {
                                 index_buffer[index] = ProbeTool.EMPTY_PROBE_IDX;
                                 continue;
+                            }
+
+                            // Set direction
+                            Vector3 dir = direction[i];
+                            for (int j = 0; j < 9; j++)
+                            {
+                                shData[j * 3 + 0] *= dir.X;
+                                shData[j * 3 + 1] *= dir.Y;
+                                shData[j * 3 + 2] *= dir.Z; 
                             }
 
                             // Get index from the current buffer
