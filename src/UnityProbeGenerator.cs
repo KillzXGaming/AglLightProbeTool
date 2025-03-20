@@ -79,20 +79,30 @@ namespace AglLightProbeTool
             List<float> color_buffer = new List<float>();
             Dictionary<float[], int> uniqueEntries = new Dictionary<float[], int>(new FloatArrayComparer());
 
+            float[] GetPoint(int x, int y, int z)
+            {
+                // Clamp if necessay
+                x = Math.Clamp(x, 0, (int)stride.X);
+                y = Math.Clamp(y, 0, (int)stride.Y);
+                z = Math.Clamp(z, 0, (int)stride.Z);
+
+                int unityBufferIndex = CalculateIndexUnity((int)(stride.X - x), y, z) * 27;
+                return box.Buffer.Skip(unityBufferIndex).Take(27).ToArray();
+            }
+
+            float[] LerpSH(float[] shDataA, float[] shDataB, float ratio)
+            {
+                if (shDataB.Length != shDataA.Length) return shDataA;
+
+                float[] output = new float[shDataA.Length];
+                for (int i = 0; i < shDataA.Length; i++)
+                    output[i] = Single.Lerp(shDataA[i], shDataB[i], ratio);
+                return output;
+            }
+
             for (int y = 0; y < stride.Y; y++) {
                 for (int z = 0; z < stride.Z; z++) {
                     for (int x = 0; x < stride.X; x++) {
-                        Vector3[] direction = new[]
-                        {   
-                            new Vector3(-1, -1, -1), // Bottom-left-back
-                            new Vector3(1, -1, -1),  // Bottom-right-back
-                            new Vector3(-1, -1, 1),  // Bottom-left-front
-                            new Vector3(1, -1, 1),   // Bottom-right-front
-                            new Vector3(-1, 1, -1),  // Top-left-back
-                            new Vector3(1, 1, -1),   // Top-right-back
-                            new Vector3(-1, 1, 1),   // Top-left-front
-                            new Vector3(1, 1, 1)     // Top-right-front
-                        };
                         for (int i = 0; i < 8; i++) {
                             // MK8 probe index. This is where it expects a probe to be in the grid
                             int index = CalculateIndex(x, y, z) * 8 + i;
@@ -101,20 +111,41 @@ namespace AglLightProbeTool
                             int unityBufferIndex = CalculateIndexUnity((int)(stride.X - x), y, z) * 27;
                             var shData = box.Buffer.Skip(unityBufferIndex).Take(27).ToArray();
 
-  
-                            if (shData.All(x => x == 0) || shData.Length != 27)
+                            if (shData.Length != 27)
                             {
                                 index_buffer[index] = ProbeTool.EMPTY_PROBE_IDX;
                                 continue;
                             }
 
-                            // Set direction
-                            Vector3 dir = direction[i];
-                            for (int j = 0; j < 9; j++)
+                            float lerp_ratio = 0.5f;
+
+                            switch (i)
                             {
-                                shData[j * 3 + 0] *= dir.X;
-                                shData[j * 3 + 1] *= dir.Y;
-                                shData[j * 3 + 2] *= dir.Z; 
+                                // Lerp points
+                                case 0: // Top front right
+                                    shData = LerpSH(shData, GetPoint(x + 1, y + 1, z + 1), lerp_ratio);
+                                    break;
+                                case 1: // Top front left
+                                    shData = LerpSH(shData, GetPoint(x - 1, y + 1, z + 1), lerp_ratio);
+                                    break;
+                                case 2: // Top back right
+                                    shData = LerpSH(shData, GetPoint(x + 1, y + 1, z - 1), lerp_ratio);
+                                    break;
+                                case 3: // Top back left
+                                    shData = LerpSH(shData, GetPoint(x - 1, y + 1, z - 1), lerp_ratio);
+                                    break;
+                                case 4: // Bottom front right
+                                    shData = LerpSH(shData, GetPoint(x + 1, y - 1, z + 1), lerp_ratio);
+                                    break;
+                                case 5: // Bottom front left
+                                    shData = LerpSH(shData, GetPoint(x - 1, y - 1, z + 1), lerp_ratio);
+                                    break;
+                                case 6: // Bottom back right
+                                    shData = LerpSH(shData, GetPoint(x + 1, y - 1, z - 1), lerp_ratio);
+                                    break;
+                                case 7: // Bottom back left
+                                    shData = LerpSH(shData, GetPoint(x - 1, y - 1, z - 1), lerp_ratio);
+                                    break;
                             }
 
                             // Get index from the current buffer
@@ -319,6 +350,12 @@ namespace AglLightProbeTool
                             buffer.Add(v);
                     }
 
+                    // Last value on line is the step
+                    if (float.TryParse(parts.LastOrDefault(), NumberStyles.Float, CultureInfo.InvariantCulture, out float step))
+                    {
+                        Step = new Vector3(step);
+                    }
+
                     Buffer = buffer.ToArray();
 
                     if (parts.Length >= 3)
@@ -330,6 +367,7 @@ namespace AglLightProbeTool
 
                         Console.WriteLine($"Min: {minValues}");
                         Console.WriteLine($"Max: {maxValues}");
+                        Console.WriteLine($"Step: {Step}");
                     }
                 }
             }
