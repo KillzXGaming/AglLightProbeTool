@@ -82,9 +82,9 @@ namespace AglLightProbeTool
             float[] GetPoint(int x, int y, int z)
             {
                 // Clamp if necessay
-                x = Math.Clamp(x, 0, (int)stride.X);
-                y = Math.Clamp(y, 0, (int)stride.Y);
-                z = Math.Clamp(z, 0, (int)stride.Z);
+                x = Math.Clamp(x, 0, (int)stride.X - 1);
+                y = Math.Clamp(y, 0, (int)stride.Y - 1);
+                z = Math.Clamp(z, 0, (int)stride.Z - 1);
 
                 int unityBufferIndex = CalculateIndexUnity((int)(stride.X - x), y, z) * 27;
                 return box.Buffer.Skip(unityBufferIndex).Take(27).ToArray();
