@@ -148,6 +148,12 @@ namespace AglLightProbeTool
                                     break;
                             }
 
+                            if (shData.All(x => x == 0))
+                            {
+                                index_buffer[index] = ProbeTool.EMPTY_PROBE_IDX;
+                                continue;
+                            }
+
                             // Get index from the current buffer
                             if (!uniqueEntries.TryGetValue(shData, out int dataIndex))
                             {
